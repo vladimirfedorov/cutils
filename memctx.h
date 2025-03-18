@@ -52,6 +52,11 @@ size_t memctx_snprintf(MemContext *memctx, char **buffer, const char *format, ..
 size_t memctx_open_file(MemContext *memctx, char **buffer, char *filename);
 void   memctx_free_file(MemContext *ctx, char *memctx_file);
 
+// - Diagnostics
+
+int __memctx_blocks_count(MemContext *memctx);
+MemContext* __memctx_block_at(MemContext *memctx, int index);
+
 // - Implementation -
 
 void* memctx() {
@@ -292,6 +297,46 @@ void memctx_free_file(MemContext *ctx, char *memctx_file) {
     // Free this block
     free(current->data);
     free(current);
+}
+
+int __memctx_blocks_count(MemContext *ctx) {
+    if (!ctx) return 0;
+    
+    int count = 0;
+    MemContext *current = ctx;
+    
+    while (current) {
+        count++;
+        current = (MemContext*)current->next;
+    }
+    
+    return count;
+}
+
+MemContext* __memctx_block_at(MemContext *ctx, int index) {
+    if (!ctx) return NULL;
+    
+    // Get total count for negative index handling
+    int count = __memctx_blocks_count(ctx);
+    if (count == 0) return NULL;
+    
+    // Handle negative indices (count from end)
+    if (index < 0) {
+        index = count + index;
+    }
+    
+    // Check if index is out of bounds
+    if (index < 0 || index >= count) {
+        return NULL;
+    }
+    
+    // Traverse to the specified block
+    MemContext *current = ctx;
+    for (int i = 0; i < index; i++) {
+        current = (MemContext*)current->next;
+    }
+    
+    return current;
 }
 
 #endif // _MEMCTX_H_
