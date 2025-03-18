@@ -41,20 +41,105 @@ typedef struct {
 
 // - Main -
 
+/**
+ * Create a new memory context.
+ * 
+ * @return Pointer to the newly created MemContext, or NULL if allocation fails
+ */
 void* memctx();
+
+/**
+ * Allocate memory within a memory context.
+ * 
+ * @param memctx Pointer to the memory context
+ * @param size Number of bytes to allocate
+ * @return Pointer to the allocated memory, or NULL if:
+ *         - memctx is NULL
+ *         - size is 0
+ *         - allocation fails
+ */
 void* memctx_alloc(MemContext *memctx, size_t size);
+
+/**
+ * Free all memory associated with a memory context.
+ * Frees all blocks in the context and the context itself.
+ * 
+ * @param memctx Pointer to the memory context to free
+ */
 void  memctx_free(MemContext *memctx);
+
+/**
+ * Generate a string description of a memory context.
+ * Includes details about each block in the context.
+ * 
+ * @param memctx Pointer to the memory context
+ * @return Heap-allocated string containing the description,
+ *         which must be freed by the caller, or NULL if memctx is NULL
+ */
 char* memctx_description(MemContext *memctx);
 
 // - Helper Functions -
 
+/**
+ * Format a string using sprintf and store it in a memory context.
+ * 
+ * @param memctx Pointer to the memory context
+ * @param buffer Pointer to a char* that will receive the formatted string
+ * @param format Printf-style format string
+ * @param ... Arguments to format
+ * @return Size of the formatted string including null terminator, or 0 if:
+ *         - memctx is NULL
+ *         - format is NULL
+ *         - allocation fails
+ */
 size_t memctx_snprintf(MemContext *memctx, char **buffer, const char *format, ...);
+
+/**
+ * Read a file into memory and store it in a memory context.
+ * Creates a new block in the context to hold the file contents.
+ * 
+ * @param memctx Pointer to the memory context
+ * @param buffer Pointer to a char* that will receive the file contents
+ * @param filename Name of the file to read
+ * @return Size of the file in bytes, or 0 if:
+ *         - memctx is NULL
+ *         - filename is NULL
+ *         - file cannot be opened or read
+ */
 size_t memctx_open_file(MemContext *memctx, char **buffer, char *filename);
+
+/**
+ * Free a file block from a memory context.
+ * Removes and frees the block containing the specified file data.
+ * 
+ * @param ctx Pointer to the memory context
+ * @param memctx_file Pointer to the file data to free
+ */
 void   memctx_free_file(MemContext *ctx, char *memctx_file);
 
 // - Diagnostics
 
+/**
+ * Count the number of memory blocks in a memory context.
+ * 
+ * @param memctx Pointer to the memory context to count blocks in
+ * @return The number of blocks in the memory context, or 0 if memctx is NULL
+ */
 int __memctx_blocks_count(MemContext *memctx);
+
+/**
+ * Get a memory block at the specified index from a memory context.
+ * Supports both positive and negative indices:
+ * - Positive indices (0, 1, 2, ...) count from the beginning
+ * - Negative indices (-1, -2, ...) count from the end (-1 is the last block)
+ * 
+ * @param memctx Pointer to the memory context
+ * @param index Index of the block to retrieve (can be negative to count from end)
+ * @return Pointer to the memory block at the specified index, or NULL if:
+ *         - memctx is NULL
+ *         - index is out of bounds
+ *         - memory context has no blocks
+ */
 MemContext* __memctx_block_at(MemContext *memctx, int index);
 
 // - Implementation -
