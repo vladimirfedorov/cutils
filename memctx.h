@@ -323,7 +323,10 @@ size_t memctx_open_file(MemContext *ctx, char **buffer, char *filename) {
     // File block is fully consumed
     file_block->capacity = file_size;
     file_block->consumed = file_size;
-    file_block->data = (char*)malloc(file_size + 1);
+    // Allocation size is a multiple of MEMCTX_PAGE_SIZE that can fit file_size + 1 for '\0'
+    // Keeping +1 -1 as a reminder.
+    size_t alloc_size = ((file_size + 1 + MEMCTX_PAGE_SIZE - 1) / MEMCTX_PAGE_SIZE) * MEMCTX_PAGE_SIZE;
+    file_block->data = (char*)malloc(alloc_size); // <- allocate aligned size, but track only file_size
     file_block->next = NULL;
     
     if (!file_block->data) {
