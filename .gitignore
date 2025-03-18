@@ -1,3 +1,7 @@
+# Ignore test binaries, but keep test code
+tests/*
+!tests/*.c
+
 # Prerequisites
 *.d
 
