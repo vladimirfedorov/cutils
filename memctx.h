@@ -29,7 +29,10 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+#ifndef MEMCTX_PAGE_SIZE
 #define MEMCTX_PAGE_SIZE 4069
+#endif
+
 #define MEMCTX_DESC_FORMAT "%p: capacity: %zu consumed: %zu data: %p next: %p\n"
 
 typedef struct {
