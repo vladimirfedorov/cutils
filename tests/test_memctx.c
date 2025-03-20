@@ -208,7 +208,7 @@ void test_allocation_alignment() {
 
     // Allocate various sizes and check alignment
     size_t sizes[] = {1, 2, 4, 8, 16, 24, 32};
-    for (int i = 0; i < sizeof(sizes)/sizeof(sizes[0]); i++) {
+    for (size_t i = 0; i < sizeof(sizes)/sizeof(sizes[0]); i++) {
         void *ptr = memctx_alloc(ctx, sizes[i]);
         assert(ptr != NULL);
         assert(((uintptr_t)ptr % sizeof(uintptr_t)) == 0); // Check alignment
