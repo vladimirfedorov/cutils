@@ -256,7 +256,6 @@ char* memctx_description(MemContext *ctx) {
 
     // Second pass: fill the buffer
     current = ctx;
-    size_t string_len;
     while (current) {
         buffer_offset += snprintf(description + buffer_offset, buffer_size, MEMCTX_DESC_FORMAT,
             current, current->capacity, current->consumed, current->data, current->next);
