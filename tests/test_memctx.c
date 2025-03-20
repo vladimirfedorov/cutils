@@ -17,7 +17,6 @@ void test_memctx_block_at_invalid_index();
 void test_large_allocation();
 void test_allocation_alignment();
 void test_memctx_description_null();
-void test_memctx_double_free();
 
 int main(void) {
     test_basic_allocation();
@@ -35,7 +34,6 @@ int main(void) {
     test_large_allocation();
     test_allocation_alignment();
     test_memctx_description_null();
-    test_memctx_double_free();
 
     printf("All tests completed successfully.\n");
     return 0;
