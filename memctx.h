@@ -35,11 +35,11 @@
 
 #define MEMCTX_DESC_FORMAT "%p: capacity: %zu consumed: %zu data: %p next: %p\n"
 
-typedef struct {
+typedef struct MemContext {
     char *data;
     size_t capacity;
     size_t consumed;
-    uintptr_t *next;
+    struct MemContext *next;
 } MemContext;
 
 // - Main -
@@ -186,7 +186,7 @@ void* memctx_alloc(MemContext *ctx, size_t size) {
 
         // Move to the next block
         prev = current;
-        current = (MemContext*)current->next;
+        current = current->next;
     }
 
     // Reached the end of the linked list, need to allocate a new block
@@ -211,7 +211,7 @@ void* memctx_alloc(MemContext *ctx, size_t size) {
     new_block->next = NULL;
 
     // Link the new block to the end of the list
-    prev->next = (uintptr_t*)new_block;
+    prev->next = new_block;
 
     // Return a pointer to the allocated memory in the new block
     return (void*)new_block->data;
@@ -225,7 +225,7 @@ void memctx_free(MemContext *ctx) {
     MemContext *next;
 
     while (current) {
-        next = (MemContext*)current->next;
+        next = current->next;
 
         if (current->data) {
             free(current->data);
@@ -246,7 +246,7 @@ char* memctx_description(MemContext *ctx) {
     while (current) {
         buffer_size += snprintf(NULL, 0, MEMCTX_DESC_FORMAT,
             current, current->capacity, current->consumed, current->data, current->next);
-        current = (MemContext*)current->next;
+        current = current->next;
     }
 
     // Allocate buffer
@@ -259,7 +259,7 @@ char* memctx_description(MemContext *ctx) {
     while (current) {
         buffer_offset += snprintf(description + buffer_offset, buffer_size, MEMCTX_DESC_FORMAT,
             current, current->capacity, current->consumed, current->data, current->next);
-        current = (MemContext*)current->next;
+        current = current->next;
     }
 
     return description;
@@ -355,11 +355,11 @@ size_t memctx_open_file(MemContext *ctx, char **buffer, char *filename) {
     // Find the last block in the context
     MemContext *current = ctx;
     while (current->next) {
-        current = (MemContext*)current->next;
+        current = current->next;
     }
 
     // Link the new block to the end of the list
-    current->next = (uintptr_t*)file_block;
+    current->next = file_block;
 
     *buffer = (char *)file_block->data;
     return read_size;
@@ -377,11 +377,11 @@ void memctx_free_file(MemContext *ctx, char *memctx_file) {
             break;
         }
         prev = current;
-        current = (MemContext*)current->next;
+        current = current->next;
     }
 
     if (prev) {
-        prev->next = (uintptr_t *)current->next;
+        prev->next = current->next;
     }
 
     // Free this block
@@ -397,7 +397,7 @@ int __memctx_blocks_count(MemContext *ctx) {
 
     while (current) {
         count++;
-        current = (MemContext*)current->next;
+        current = current->next;
     }
 
     return count;
@@ -423,7 +423,7 @@ MemContext* __memctx_block_at(MemContext *ctx, int index) {
     // Traverse to the specified block
     MemContext *current = ctx;
     for (int i = 0; i < index; i++) {
-        current = (MemContext*)current->next;
+        current = current->next;
     }
 
     return current;
