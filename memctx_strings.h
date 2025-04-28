@@ -41,17 +41,7 @@ typedef struct memctx_string substring;   // do not free
  *
  * Returns a string object with the value set to NULL and length set to 0.
  */
-string string_init(MemContext *ctx) {
-    string str;
-    str.ctx = ctx;
-    str.length = 0;
-    str.capacity = STRING_INIT_CAPACITY;
-    str.value = (char *)memctx_alloc(ctx, str.capacity);
-    if (str.value) {
-        str.value[0] = '\0'; // Initialize as an empty string
-    }
-    return str;
-}
+string string_init(MemContext *ctx);
 
 /**
  * Creates and returns a string object initialized
@@ -137,3 +127,15 @@ substring string_trim(string str);
 void string_free(string str);
 
 // - Implementation -
+
+string string_init(MemContext *ctx) {
+    string str;
+    str.ctx = ctx;
+    str.length = 0;
+    str.capacity = STRING_INIT_CAPACITY;
+    str.value = (char *)memctx_alloc(ctx, str.capacity);
+    if (str.value) {
+        str.value[0] = '\0';
+    }
+    return str;
+}
