@@ -121,3 +121,5 @@ substring string_trim(string str);
  *  - str          The string object whose memory needs to be freed.
  */
 void string_free(string str);
+
+// - Implementation -
