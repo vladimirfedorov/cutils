@@ -21,6 +21,10 @@
 // This header file contains the implementation of all strings functions.
 
 #include <stddef.h>
+
+#ifndef STRING_INIT_CAPACITY
+#define STRING_INIT_CAPACITY 256
+#endif
 #include "memctx.h"
 
 struct memctx_string {
@@ -37,7 +41,17 @@ typedef struct memctx_string substring;   // do not free
  *
  * Returns a string object with the value set to NULL and length set to 0.
  */
-string string_init(MemContext *ctx);
+string string_init(MemContext *ctx) {
+    string str;
+    str.ctx = ctx;
+    str.length = 0;
+    str.capacity = STRING_INIT_CAPACITY;
+    str.value = (char *)memctx_alloc(ctx, str.capacity);
+    if (str.value) {
+        str.value[0] = '\0'; // Initialize as an empty string
+    }
+    return str;
+}
 
 /**
  * Creates and returns a string object initialized
