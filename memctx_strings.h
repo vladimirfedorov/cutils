@@ -20,6 +20,9 @@
 
 // This header file contains the implementation of all strings functions.
 
+#ifndef _MEMCTX_STRINGS_H_
+#define _MEMCTX_STRINGS_H_
+
 #include <stddef.h>
 #include <string.h>
 #include <ctype.h>
@@ -207,14 +210,14 @@ string __string_append_chars(string str, const char* value) {
         
         // Copy existing string and append new content
         memcpy(new_value, str.value, str.length);
-        memcpy(new_value + str.length, value, value_length + 1);  // +1 to include null terminator
+        memcpy(new_value + str.length, value, value_length + 1);
         
         // Update the string with new buffer and capacity
         str.value = new_value;
         str.capacity = new_capacity;
     } else {
         // Enough space, just append
-        memcpy(str.value + str.length, value, value_length + 1);  // +1 to include null terminator
+        memcpy(str.value + str.length, value, value_length + 1);
     }
     
     str.length = new_length;
@@ -284,3 +287,5 @@ substring string_trim(string str) {
     
     return result;
 }
+
+#endif
