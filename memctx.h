@@ -49,7 +49,7 @@ typedef struct MemContext {
  *
  * @return Pointer to the newly created MemContext, or NULL if allocation fails
  */
-void* memctx();
+MemContext* memctx();
 
 /**
  * Allocate memory within a memory context.
@@ -147,7 +147,7 @@ MemContext* __memctx_block_at(MemContext *memctx, int index);
 
 // - Implementation -
 
-void* memctx() {
+MemContext* memctx() {
     MemContext* ctx = (MemContext*)malloc(sizeof(MemContext));
     if (!ctx) return NULL;
 
