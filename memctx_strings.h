@@ -26,11 +26,11 @@
 #include <stddef.h>
 #include <string.h>
 #include <ctype.h>
+#include "memctx.h"
 
 #ifndef STRING_INIT_CAPACITY
 #define STRING_INIT_CAPACITY 256
 #endif
-#include "memctx.h"
 
 struct memctx_string {
     char *value;
