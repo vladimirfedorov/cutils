@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// This header file contains the implementation of all strings functions.
+// This header file contains the implementation of all string functions.
 
 #ifndef _MEMCTX_STRINGS_H_
 #define _MEMCTX_STRINGS_H_
