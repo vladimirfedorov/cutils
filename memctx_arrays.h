@@ -31,13 +31,12 @@
 #define ARRAY_INIT_CAPACITY 4
 #endif
 
-struct memctx_array {
-    uintptr_t **items;
+typedef struct memctx_array {
+    void **items;
     size_t length;
     size_t capacity;
     MemContext *ctx;
-};
-typedef struct memctx_array array;
+} array;
 
 typedef bool (*Comparator)(void *item);
 typedef void (*Action)(void *item);
