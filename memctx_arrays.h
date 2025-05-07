@@ -23,7 +23,6 @@
 #ifndef _MEMCTX_ARRAYS_H_
 #define _MEMCTX_ARRAYS_H_
 
-#include <cstddef>
 #include <stddef.h>
 #include <ctype.h>
 #include "memctx.h"
