@@ -42,16 +42,20 @@ typedef bool (*Comparator)(void *item);
 typedef void (*Action)(void *item);
 
 array* array_init(MemContext *ctx);
-size_t array_append(array arr, void *item);
+void array_free(array *arr);
+void array_clear(array *arr);
 
-void array_insert_at(array arr, void *item, size_t index);
-void array_remove_at(array arr, size_t index);
-void* array_item_at(array arr, size_t index);
+size_t array_append(array *arr, void *item);
+void array_insert_at(array *arr, void *item, size_t index);
+void array_remove_at(array *arr, size_t index);
+void* array_item_at(array *arr, size_t index);
 
-size_t array_first_index(array arr, Comparator cmp);
-void array_match(array arr, Comparator cmp, Action action);
-void arra_remove(array arr, Comparator cmp);
+size_t array_first_index(array *arr, Comparator cmp);
+void array_match(array *arr, Comparator cmp, Action action);
+void array_foreach(array *arr, Action action);
+void array_remove(array *arr, Comparator cmp);
 
-void __array_resize(array arr, size_t capacity);
+
+void __array_resize(array *arr, size_t capacity); // internal
 
 #endif
