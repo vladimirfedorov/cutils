@@ -55,7 +55,12 @@ void array_match(array *arr, Comparator cmp, Action action);
 void array_foreach(array *arr, Action action);
 void array_remove(array *arr, Comparator cmp);
 
-
-void __array_resize(array *arr, size_t capacity); // internal
+/**
+ * Resizes the internal array storage to the specified capacity.
+ *
+ * @param arr Pointer to the array.
+ * @param capacity The new capacity.
+ */
+void __array_resize(array *arr, size_t capacity);
 
 #endif
