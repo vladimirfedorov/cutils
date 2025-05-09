@@ -60,7 +60,28 @@ void array_clear(array *arr);
  * @return The new length of the array, or 0 if the array is NULL
  */
 size_t array_append(array *arr, void *item);
+
+/**
+ * Inserts an item at the specified index in the array.
+ * Shifts all items at or after the index one position to the right.
+ * If index is greater than or equal to the array length,
+ * the item is appended to the end of the array.
+ * Automatically resizes the array if necessary.
+ *
+ * @param arr Pointer to the array
+ * @param item The item to insert
+ * @param index The index at which to insert the item
+ */
 void array_insert_at(array *arr, void *item, size_t index);
+
+/**
+ * Removes the item at the specified index from the array.
+ * Shifts all items after the index one position to the left.
+ * If index is out of bounds, no action is taken.
+ *
+ * @param arr Pointer to the array
+ * @param index The index of the item to remove
+ */
 void array_remove_at(array *arr, size_t index);
 
 /**
@@ -148,6 +169,38 @@ size_t array_append(array *arr, void *item) {
     arr->length++;
 
     return arr->length;
+}
+
+void array_insert_at(array *arr, void *item, size_t index) {
+    if (!arr) return;
+
+    // If index is beyond the end of the array, treat it as append
+    if (index >= arr->length) {
+        array_append(arr, item);
+        return;
+    }
+
+    // Check if we need to resize the array
+    if (arr->length >= arr->capacity) {
+        __array_resize(arr, arr->capacity * 2);
+        if (arr->length >= arr->capacity) {
+            return;
+        }
+    }
+
+    for (size_t i = arr->length; i > index; i--) {
+        arr->items[i] = arr->items[i - 1];
+    }
+    arr->items[index] = item;
+    arr->length++;
+}
+
+void array_remove_at(array *arr, size_t index) {
+    if (!arr || index >= arr->length) return;
+    for (size_t i = index; i < arr->length - 1; i++) {
+        arr->items[i] = arr->items[i + 1];
+    }
+    arr->length--;
 }
 
 void* array_item_at(array *arr, size_t index) {

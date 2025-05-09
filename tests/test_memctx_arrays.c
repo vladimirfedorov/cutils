@@ -11,6 +11,12 @@ void test_array_resize();
 void test_array_item_at();
 void test_array_item_at_null_array();
 void test_array_item_at_out_of_bounds();
+void test_array_insert_at();
+void test_array_insert_at_null_array();
+void test_array_insert_at_out_of_bounds();
+void test_array_remove_at();
+void test_array_remove_at_null_array();
+void test_array_remove_at_out_of_bounds();
 
 int main(void) {
     test_array_init();
@@ -21,6 +27,12 @@ int main(void) {
     test_array_item_at();
     test_array_item_at_null_array();
     test_array_item_at_out_of_bounds();
+    test_array_insert_at();
+    test_array_insert_at_null_array();
+    test_array_insert_at_out_of_bounds();
+    test_array_remove_at();
+    test_array_remove_at_null_array();
+    test_array_remove_at_out_of_bounds();
 
     printf("All array tests completed successfully.\n");
     return 0;
@@ -207,6 +219,171 @@ void test_array_item_at_out_of_bounds() {
     // Also test with a much larger index
     retrieved = array_item_at(arr, 100);
     assert(retrieved == NULL);
+
+    memctx_free(ctx);
+}
+
+// Test 9: Test array_insert_at functionality (insert in the middle)
+void test_array_insert_at() {
+    MemContext *ctx = memctx();
+    assert(ctx != NULL);
+
+    array *arr = array_init(ctx);
+    assert(arr != NULL);
+
+    // Create some test items
+    char *item1 = (char*)memctx_alloc(ctx, 10);
+    strcpy(item1, "Item 1");
+
+    char *item2 = (char*)memctx_alloc(ctx, 10);
+    strcpy(item2, "Item 2");
+
+    char *item3 = (char*)memctx_alloc(ctx, 10);
+    strcpy(item3, "Item 3");
+
+    // Append the first and third items
+    array_append(arr, item1);
+    array_append(arr, item3);
+
+    // Insert item2 at index 1 (between item1 and item3)
+    array_insert_at(arr, item2, 1);
+
+    // Verify the array length and content
+    assert(arr->length == 3);
+    assert(arr->items[0] == item1);
+    assert(arr->items[1] == item2);
+    assert(arr->items[2] == item3);
+
+    // Verify the content of the items
+    assert(strcmp((char*)arr->items[0], "Item 1") == 0);
+    assert(strcmp((char*)arr->items[1], "Item 2") == 0);
+    assert(strcmp((char*)arr->items[2], "Item 3") == 0);
+
+    // Test insertion at the beginning
+    char *item0 = (char*)memctx_alloc(ctx, 10);
+    strcpy(item0, "Item 0");
+
+    array_insert_at(arr, item0, 0);
+
+    // Verify the array after insertion at the beginning
+    assert(arr->length == 4);
+    assert(arr->items[0] == item0);
+    assert(arr->items[1] == item1);
+    assert(arr->items[2] == item2);
+    assert(arr->items[3] == item3);
+
+    memctx_free(ctx);
+}
+
+// Test 10: Test array_insert_at with NULL array
+void test_array_insert_at_null_array() {
+    // Should not crash
+    array_insert_at(NULL, (void*)"Test", 0);
+}
+
+// Test 11: Test array_insert_at with out-of-bounds index (should append)
+void test_array_insert_at_out_of_bounds() {
+    MemContext *ctx = memctx();
+    assert(ctx != NULL);
+
+    array *arr = array_init(ctx);
+    assert(arr != NULL);
+
+    // Create a test item
+    char *item1 = (char*)memctx_alloc(ctx, 10);
+    strcpy(item1, "Item 1");
+
+    // Insert at index beyond the end (should append)
+    array_insert_at(arr, item1, 5);
+
+    // Verify the array
+    assert(arr->length == 1);
+    assert(arr->items[0] == item1);
+    assert(strcmp((char*)arr->items[0], "Item 1") == 0);
+
+    memctx_free(ctx);
+}
+
+// Test 12: Test array_remove_at functionality
+void test_array_remove_at() {
+    MemContext *ctx = memctx();
+    assert(ctx != NULL);
+
+    array *arr = array_init(ctx);
+    assert(arr != NULL);
+
+    // Create some test items
+    char *item1 = (char*)memctx_alloc(ctx, 10);
+    strcpy(item1, "Item 1");
+
+    char *item2 = (char*)memctx_alloc(ctx, 10);
+    strcpy(item2, "Item 2");
+
+    char *item3 = (char*)memctx_alloc(ctx, 10);
+    strcpy(item3, "Item 3");
+
+    // Append all items
+    array_append(arr, item1);
+    array_append(arr, item2);
+    array_append(arr, item3);
+
+    // Remove the middle item
+    array_remove_at(arr, 1);
+
+    // Verify the array length and content
+    assert(arr->length == 2);
+    assert(arr->items[0] == item1);
+    assert(arr->items[1] == item3);
+
+    // Verify the content of the remaining items
+    assert(strcmp((char*)arr->items[0], "Item 1") == 0);
+    assert(strcmp((char*)arr->items[1], "Item 3") == 0);
+
+    // Remove the first item
+    array_remove_at(arr, 0);
+
+    // Verify the array again
+    assert(arr->length == 1);
+    assert(arr->items[0] == item3);
+    assert(strcmp((char*)arr->items[0], "Item 3") == 0);
+
+    // Remove the last item
+    array_remove_at(arr, 0);
+
+    // Verify the array is empty
+    assert(arr->length == 0);
+
+    memctx_free(ctx);
+}
+
+// Test 13: Test array_remove_at with NULL array
+void test_array_remove_at_null_array() {
+    // Should not crash
+    array_remove_at(NULL, 0);
+}
+
+// Test 14: Test array_remove_at with out-of-bounds index
+void test_array_remove_at_out_of_bounds() {
+    MemContext *ctx = memctx();
+    assert(ctx != NULL);
+
+    array *arr = array_init(ctx);
+    assert(arr != NULL);
+
+    // Create a test item
+    char *item1 = (char*)memctx_alloc(ctx, 10);
+    strcpy(item1, "Item 1");
+
+    // Append the item
+    array_append(arr, item1);
+
+    // Remove at index beyond the end (should do nothing)
+    array_remove_at(arr, 5);
+
+    // Verify the array is unchanged
+    assert(arr->length == 1);
+    assert(arr->items[0] == item1);
+    assert(strcmp((char*)arr->items[0], "Item 1") == 0);
 
     memctx_free(ctx);
 }
