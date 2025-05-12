@@ -17,6 +17,8 @@ void test_array_insert_at_out_of_bounds();
 void test_array_remove_at();
 void test_array_remove_at_null_array();
 void test_array_remove_at_out_of_bounds();
+void test_array_clear();
+void test_array_clear_null_array();
 
 int main(void) {
     test_array_init();
@@ -33,6 +35,8 @@ int main(void) {
     test_array_remove_at();
     test_array_remove_at_null_array();
     test_array_remove_at_out_of_bounds();
+    test_array_clear();
+    test_array_clear_null_array();
 
     printf("All array tests completed successfully.\n");
     return 0;
@@ -51,6 +55,54 @@ void test_array_init() {
     assert(arr->ctx == ctx);
 
     memctx_free(ctx);
+}
+
+// Test 15: Test array_clear functionality
+void test_array_clear() {
+    MemContext *ctx = memctx();
+    assert(ctx != NULL);
+    
+    array *arr = array_init(ctx);
+    assert(arr != NULL);
+    
+    // Create and append some test items
+    char *item1 = (char*)memctx_alloc(ctx, 10);
+    strcpy(item1, "Item 1");
+    
+    char *item2 = (char*)memctx_alloc(ctx, 10);
+    strcpy(item2, "Item 2");
+    
+    char *item3 = (char*)memctx_alloc(ctx, 10);
+    strcpy(item3, "Item 3");
+    
+    array_append(arr, item1);
+    array_append(arr, item2);
+    array_append(arr, item3);
+    
+    // Verify array has items
+    assert(arr->length == 3);
+    
+    // Clear the array
+    array_clear(arr);
+    
+    // Verify the array is empty
+    assert(arr->length == 0);
+    
+    // Verify capacity is unchanged
+    assert(arr->capacity == ARRAY_INIT_CAPACITY);
+    
+    // Check that we can still append items after clearing
+    array_append(arr, item1);
+    assert(arr->length == 1);
+    assert(arr->items[0] == item1);
+    
+    memctx_free(ctx);
+}
+
+// Test 16: Test array_clear with NULL array
+void test_array_clear_null_array() {
+    // Should not crash
+    array_clear(NULL);
 }
 
 // Test 2: Initialize with NULL context (should return NULL)

@@ -49,6 +49,14 @@ typedef void (*Action)(void *item);
  * @return Pointer to the newly created array, or NULL if allocation fails
  */
 array* array_init(MemContext *ctx);
+
+/**
+ * Clears all elements from an array.
+ * This operation resets the array length to zero but retains its capacity.
+ * The array structure itself is not deallocated.
+ *
+ * @param arr Pointer to the array to clear
+ */
 void array_clear(array *arr);
 
 /**
@@ -132,22 +140,9 @@ array* array_init(MemContext *ctx) {
     return arr;
 }
 
-void __array_resize(array *arr, size_t capacity) {
-    if (!arr || capacity < arr->length) return;
-
-    // Allocate a new items array with the increased capacity
-    void **new_items = (void**)memctx_alloc(arr->ctx, sizeof(void*) * capacity);
-    if (!new_items) return;
-
-    // Copy existing items to the new array
-    for (size_t i = 0; i < arr->length; i++) {
-        new_items[i] = arr->items[i];
-    }
-
-    // Update the array with the new items and capacity
-    // Note: We don't need to free old arr->items as it's part of the memory context
-    arr->items = new_items;
-    arr->capacity = capacity;
+void array_clear(array *arr) {
+    if (!arr) return;
+    arr->length = 0;
 }
 
 size_t array_append(array *arr, void *item) {
@@ -206,6 +201,19 @@ void array_remove_at(array *arr, size_t index) {
 void* array_item_at(array *arr, size_t index) {
     if (!arr || index >= arr->length) return NULL;
     return arr->items[index];
+}
+
+void __array_resize(array *arr, size_t capacity) {
+    if (!arr || capacity < arr->length) return;
+
+    void **new_items = (void**)memctx_alloc(arr->ctx, sizeof(void*) * capacity);
+    if (!new_items) return;
+
+    for (size_t i = 0; i < arr->length; i++) {
+        new_items[i] = arr->items[i];
+    }
+    arr->items = new_items;
+    arr->capacity = capacity;
 }
 
 #endif
