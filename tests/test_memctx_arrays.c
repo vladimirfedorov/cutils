@@ -3,22 +3,22 @@
 #include <stdio.h>
 #include <string.h>
 
-void test_array_init();
-void test_array_init_null_context();
-void test_array_append();
-void test_array_append_null_array();
-void test_array_resize();
-void test_array_item_at();
-void test_array_item_at_null_array();
-void test_array_item_at_out_of_bounds();
-void test_array_insert_at();
-void test_array_insert_at_null_array();
-void test_array_insert_at_out_of_bounds();
-void test_array_remove_at();
-void test_array_remove_at_null_array();
-void test_array_remove_at_out_of_bounds();
-void test_array_clear();
-void test_array_clear_null_array();
+void test_array_init(void);
+void test_array_init_null_context(void);
+void test_array_append(void);
+void test_array_append_null_array(void);
+void test_array_resize(void);
+void test_array_item_at(void);
+void test_array_item_at_null_array(void);
+void test_array_item_at_out_of_bounds(void);
+void test_array_insert_at(void);
+void test_array_insert_at_null_array(void);
+void test_array_insert_at_out_of_bounds(void);
+void test_array_remove_at(void);
+void test_array_remove_at_null_array(void);
+void test_array_remove_at_out_of_bounds(void);
+void test_array_clear(void);
+void test_array_clear_null_array(void);
 void test_array_first_index(void);
 void test_array_first_index_null_array(void);
 void test_array_first_index_null_comparator(void);
@@ -57,7 +57,7 @@ int main(void) {
 }
 
 // Test 1: Basic array initialization
-void test_array_init() {
+void test_array_init(void) {
     MemContext *ctx = memctx();
     assert(ctx != NULL);
 
@@ -72,13 +72,13 @@ void test_array_init() {
 }
 
 // Test 2: Initialize with NULL context (should return NULL)
-void test_array_init_null_context() {
+void test_array_init_null_context(void) {
     array *arr = array_init(NULL);
     assert(arr == NULL);
 }
 
 // Test 3: Test array_append functionality
-void test_array_append() {
+void test_array_append(void) {
     MemContext *ctx = memctx();
     assert(ctx != NULL);
 
@@ -120,13 +120,13 @@ void test_array_append() {
 }
 
 // Test 4: Test array_append with NULL array
-void test_array_append_null_array() {
+void test_array_append_null_array(void) {
     size_t len = array_append(NULL, (void*)"Test");
     assert(len == 0);
 }
 
 // Test 5: Test array resize functionality
-void test_array_resize() {
+void test_array_resize(void) {
     MemContext *ctx = memctx();
     assert(ctx != NULL);
 
@@ -171,7 +171,7 @@ void test_array_resize() {
 }
 
 // Test 6: Test array_item_at functionality
-void test_array_item_at() {
+void test_array_item_at(void) {
     MemContext *ctx = memctx();
     assert(ctx != NULL);
 
@@ -212,13 +212,13 @@ void test_array_item_at() {
 }
 
 // Test 7: Test array_item_at with NULL array
-void test_array_item_at_null_array() {
+void test_array_item_at_null_array(void) {
     void *item = array_item_at(NULL, 0);
     assert(item == NULL);
 }
 
 // Test 8: Test array_item_at with out-of-bounds index
-void test_array_item_at_out_of_bounds() {
+void test_array_item_at_out_of_bounds(void) {
     MemContext *ctx = memctx();
     assert(ctx != NULL);
 
@@ -242,7 +242,7 @@ void test_array_item_at_out_of_bounds() {
 }
 
 // Test 9: Test array_insert_at functionality (insert in the middle)
-void test_array_insert_at() {
+void test_array_insert_at(void) {
     MemContext *ctx = memctx();
     assert(ctx != NULL);
 
@@ -294,13 +294,13 @@ void test_array_insert_at() {
 }
 
 // Test 10: Test array_insert_at with NULL array
-void test_array_insert_at_null_array() {
+void test_array_insert_at_null_array(void) {
     // Should not crash
     array_insert_at(NULL, (void*)"Test", 0);
 }
 
 // Test 11: Test array_insert_at with out-of-bounds index (should append)
-void test_array_insert_at_out_of_bounds() {
+void test_array_insert_at_out_of_bounds(void) {
     MemContext *ctx = memctx();
     assert(ctx != NULL);
 
@@ -323,7 +323,7 @@ void test_array_insert_at_out_of_bounds() {
 }
 
 // Test 12: Test array_remove_at functionality
-void test_array_remove_at() {
+void test_array_remove_at(void) {
     MemContext *ctx = memctx();
     assert(ctx != NULL);
 
@@ -375,13 +375,13 @@ void test_array_remove_at() {
 }
 
 // Test 13: Test array_remove_at with NULL array
-void test_array_remove_at_null_array() {
+void test_array_remove_at_null_array(void) {
     // Should not crash
     array_remove_at(NULL, 0);
 }
 
 // Test 14: Test array_remove_at with out-of-bounds index
-void test_array_remove_at_out_of_bounds() {
+void test_array_remove_at_out_of_bounds(void) {
     MemContext *ctx = memctx();
     assert(ctx != NULL);
 
@@ -407,7 +407,7 @@ void test_array_remove_at_out_of_bounds() {
 }
 
 // Test 15: Test array_clear functionality
-void test_array_clear() {
+void test_array_clear(void) {
     MemContext *ctx = memctx();
     assert(ctx != NULL);
 
@@ -449,7 +449,7 @@ void test_array_clear() {
 }
 
 // Test 16: Test array_clear with NULL array
-void test_array_clear_null_array() {
+void test_array_clear_null_array(void) {
     // Should not crash
     array_clear(NULL);
 }

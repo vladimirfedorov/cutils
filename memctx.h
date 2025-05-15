@@ -49,7 +49,7 @@ typedef struct MemContext {
  *
  * @return Pointer to the newly created MemContext, or NULL if allocation fails
  */
-MemContext* memctx();
+MemContext* memctx(void);
 
 /**
  * Allocate memory within a memory context.
@@ -147,7 +147,7 @@ MemContext* __memctx_block_at(MemContext *memctx, int index);
 
 // - Implementation -
 
-MemContext* memctx() {
+MemContext* memctx(void) {
     MemContext* ctx = (MemContext*)malloc(sizeof(MemContext));
     if (!ctx) return NULL;
 
@@ -245,7 +245,7 @@ char* memctx_description(MemContext *ctx) {
     MemContext *current = ctx;
     while (current) {
         buffer_size += snprintf(NULL, 0, MEMCTX_DESC_FORMAT,
-            current, current->capacity, current->consumed, current->data, current->next);
+            (void *)current, current->capacity, current->consumed, (void *)current->data, (void *)current->next);
         current = current->next;
     }
 
@@ -258,7 +258,7 @@ char* memctx_description(MemContext *ctx) {
     current = ctx;
     while (current) {
         buffer_offset += snprintf(description + buffer_offset, buffer_size, MEMCTX_DESC_FORMAT,
-            current, current->capacity, current->consumed, current->data, current->next);
+            (void *)current, current->capacity, current->consumed, (void *)current->data, (void *)current->next);
         current = current->next;
     }
 

@@ -114,6 +114,7 @@ void* array_item_at(array *arr, size_t index);
  *         - no matching item is found
  */
 size_t array_first_index(array *arr, Comparator cmp);
+
 void array_match(array *arr, Comparator cmp, Action action);
 void array_foreach(array *arr, Action action);
 void array_remove(array *arr, Comparator cmp);
@@ -215,7 +216,7 @@ void* array_item_at(array *arr, size_t index) {
 
 size_t array_first_index(array *arr, Comparator cmp) {
     if (!arr || !cmp) return (size_t)-1;
-    
+
     // Iterate through the array and apply the comparator function to each item
     for (size_t i = 0; i < arr->length; i++) {
         // If the comparator returns true, we found a match
@@ -223,7 +224,7 @@ size_t array_first_index(array *arr, Comparator cmp) {
             return i;
         }
     }
-    
+
     // No match found
     return (size_t)-1;
 }
