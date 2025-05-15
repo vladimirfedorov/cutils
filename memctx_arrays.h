@@ -103,6 +103,16 @@ void array_remove_at(array *arr, size_t index);
  */
 void* array_item_at(array *arr, size_t index);
 
+/**
+ * Finds the first item in the array that satisfies the given comparator function.
+ *
+ * @param arr Pointer to the array to search
+ * @param cmp The comparator function that returns true when a matching item is found
+ * @return The index of the first matching item, or (size_t)-1 if:
+ *         - arr is NULL
+ *         - cmp is NULL
+ *         - no matching item is found
+ */
 size_t array_first_index(array *arr, Comparator cmp);
 void array_match(array *arr, Comparator cmp, Action action);
 void array_foreach(array *arr, Action action);
@@ -201,6 +211,21 @@ void array_remove_at(array *arr, size_t index) {
 void* array_item_at(array *arr, size_t index) {
     if (!arr || index >= arr->length) return NULL;
     return arr->items[index];
+}
+
+size_t array_first_index(array *arr, Comparator cmp) {
+    if (!arr || !cmp) return (size_t)-1;
+    
+    // Iterate through the array and apply the comparator function to each item
+    for (size_t i = 0; i < arr->length; i++) {
+        // If the comparator returns true, we found a match
+        if (cmp(arr->items[i])) {
+            return i;
+        }
+    }
+    
+    // No match found
+    return (size_t)-1;
 }
 
 void __array_resize(array *arr, size_t capacity) {

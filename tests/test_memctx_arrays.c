@@ -19,6 +19,16 @@ void test_array_remove_at_null_array();
 void test_array_remove_at_out_of_bounds();
 void test_array_clear();
 void test_array_clear_null_array();
+void test_array_first_index(void);
+void test_array_first_index_null_array(void);
+void test_array_first_index_null_comparator(void);
+void test_array_first_index_no_match(void);
+
+// Comparator functions for array_first_index tests
+bool find_30(void *item);
+bool find_20(void *item);
+bool find_50(void *item);
+bool always_true(void *item);
 
 int main(void) {
     test_array_init();
@@ -37,6 +47,10 @@ int main(void) {
     test_array_remove_at_out_of_bounds();
     test_array_clear();
     test_array_clear_null_array();
+    test_array_first_index();
+    test_array_first_index_null_array();
+    test_array_first_index_null_comparator();
+    test_array_first_index_no_match();
 
     printf("All array tests completed successfully.\n");
     return 0;
@@ -55,54 +69,6 @@ void test_array_init() {
     assert(arr->ctx == ctx);
 
     memctx_free(ctx);
-}
-
-// Test 15: Test array_clear functionality
-void test_array_clear() {
-    MemContext *ctx = memctx();
-    assert(ctx != NULL);
-    
-    array *arr = array_init(ctx);
-    assert(arr != NULL);
-    
-    // Create and append some test items
-    char *item1 = (char*)memctx_alloc(ctx, 10);
-    strcpy(item1, "Item 1");
-    
-    char *item2 = (char*)memctx_alloc(ctx, 10);
-    strcpy(item2, "Item 2");
-    
-    char *item3 = (char*)memctx_alloc(ctx, 10);
-    strcpy(item3, "Item 3");
-    
-    array_append(arr, item1);
-    array_append(arr, item2);
-    array_append(arr, item3);
-    
-    // Verify array has items
-    assert(arr->length == 3);
-    
-    // Clear the array
-    array_clear(arr);
-    
-    // Verify the array is empty
-    assert(arr->length == 0);
-    
-    // Verify capacity is unchanged
-    assert(arr->capacity == ARRAY_INIT_CAPACITY);
-    
-    // Check that we can still append items after clearing
-    array_append(arr, item1);
-    assert(arr->length == 1);
-    assert(arr->items[0] == item1);
-    
-    memctx_free(ctx);
-}
-
-// Test 16: Test array_clear with NULL array
-void test_array_clear_null_array() {
-    // Should not crash
-    array_clear(NULL);
 }
 
 // Test 2: Initialize with NULL context (should return NULL)
@@ -436,6 +402,162 @@ void test_array_remove_at_out_of_bounds() {
     assert(arr->length == 1);
     assert(arr->items[0] == item1);
     assert(strcmp((char*)arr->items[0], "Item 1") == 0);
+
+    memctx_free(ctx);
+}
+
+// Test 15: Test array_clear functionality
+void test_array_clear() {
+    MemContext *ctx = memctx();
+    assert(ctx != NULL);
+
+    array *arr = array_init(ctx);
+    assert(arr != NULL);
+
+    // Create and append some test items
+    char *item1 = (char*)memctx_alloc(ctx, 10);
+    strcpy(item1, "Item 1");
+
+    char *item2 = (char*)memctx_alloc(ctx, 10);
+    strcpy(item2, "Item 2");
+
+    char *item3 = (char*)memctx_alloc(ctx, 10);
+    strcpy(item3, "Item 3");
+
+    array_append(arr, item1);
+    array_append(arr, item2);
+    array_append(arr, item3);
+
+    // Verify array has items
+    assert(arr->length == 3);
+
+    // Clear the array
+    array_clear(arr);
+
+    // Verify the array is empty
+    assert(arr->length == 0);
+
+    // Verify capacity is unchanged
+    assert(arr->capacity == ARRAY_INIT_CAPACITY);
+
+    // Check that we can still append items after clearing
+    array_append(arr, item1);
+    assert(arr->length == 1);
+    assert(arr->items[0] == item1);
+
+    memctx_free(ctx);
+}
+
+// Test 16: Test array_clear with NULL array
+void test_array_clear_null_array() {
+    // Should not crash
+    array_clear(NULL);
+}
+
+// Comparator function implementations
+bool find_30(void *item) {
+    return (*(int*)item == 30);
+}
+
+bool find_20(void *item) {
+    return (*(int*)item == 20);
+}
+
+bool find_50(void *item) {
+    return (*(int*)item == 50);
+}
+
+bool always_true(void *item) {
+    (void)item; // Unused parameter
+    return true;
+}
+
+// Test 17: Test array_first_index functionality
+void test_array_first_index(void) {
+    MemContext *ctx = memctx();
+    assert(ctx != NULL);
+
+    array *arr = array_init(ctx);
+    assert(arr != NULL);
+
+    // Create some test items
+    int *item1 = (int*)memctx_alloc(ctx, sizeof(int));
+    *item1 = 10;
+
+    int *item2 = (int*)memctx_alloc(ctx, sizeof(int));
+    *item2 = 20;
+
+    int *item3 = (int*)memctx_alloc(ctx, sizeof(int));
+    *item3 = 30;
+
+    int *item4 = (int*)memctx_alloc(ctx, sizeof(int));
+    *item4 = 40;
+
+    // Append the items
+    array_append(arr, item1);
+    array_append(arr, item2);
+    array_append(arr, item3);
+    array_append(arr, item4);
+
+    // Find the index of the item equal to 30
+    size_t index = array_first_index(arr, find_30);
+    assert(index == 2); // item3 is at index 2
+
+    // Find the index of the item equal to 20
+    index = array_first_index(arr, find_20);
+    assert(index == 1); // item2 is at index 1
+
+    memctx_free(ctx);
+}
+
+// Test 18: Test array_first_index with NULL array
+void test_array_first_index_null_array(void) {
+    size_t index = array_first_index(NULL, always_true);
+    assert(index == (size_t)-1);
+}
+
+// Test 19: Test array_first_index with NULL comparator
+void test_array_first_index_null_comparator(void) {
+    MemContext *ctx = memctx();
+    assert(ctx != NULL);
+
+    array *arr = array_init(ctx);
+    assert(arr != NULL);
+
+    // Add an item to the array
+    int *item = (int*)memctx_alloc(ctx, sizeof(int));
+    *item = 10;
+    array_append(arr, item);
+
+    // Call with NULL comparator
+    size_t index = array_first_index(arr, NULL);
+    assert(index == (size_t)-1);
+
+    memctx_free(ctx);
+}
+
+// Test 20: Test array_first_index with no match
+void test_array_first_index_no_match(void) {
+    MemContext *ctx = memctx();
+    assert(ctx != NULL);
+
+    array *arr = array_init(ctx);
+    assert(arr != NULL);
+
+    // Create some test items
+    int *item1 = (int*)memctx_alloc(ctx, sizeof(int));
+    *item1 = 10;
+
+    int *item2 = (int*)memctx_alloc(ctx, sizeof(int));
+    *item2 = 20;
+
+    // Append the items
+    array_append(arr, item1);
+    array_append(arr, item2);
+
+    // Try to find an item that doesn't exist
+    size_t index = array_first_index(arr, find_50);
+    assert(index == (size_t)-1);
 
     memctx_free(ctx);
 }
