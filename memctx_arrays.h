@@ -128,7 +128,29 @@ size_t array_first_index(array *arr, Comparator cmp);
  *         then no action is taken
  */
 void array_match(array *arr, Comparator cmp, Action action);
+
+/**
+ * Applies the action function to each item in the array.
+ *
+ * @param arr Pointer to the array to iterate over
+ * @param action The action function to apply to each item
+ * @return Nothing, but if:
+ *         - arr is NULL
+ *         - action is NULL
+ *         then no action is taken
+ */
 void array_foreach(array *arr, Action action);
+
+/**
+ * Removes all items from the array that satisfy the given comparator function.
+ *
+ * @param arr Pointer to the array
+ * @param cmp The comparator function that returns true for items to be removed
+ * @return Nothing, but if:
+ *         - arr is NULL
+ *         - cmp is NULL
+ *         then no action is taken
+ */
 void array_remove(array *arr, Comparator cmp);
 
 /**
@@ -250,7 +272,31 @@ void array_match(array *arr, Comparator cmp, Action action) {
     }
 }
 
+void array_foreach(array *arr, Action action) {
+    if (!arr || !action) return;
+    for (size_t i = 0; i < arr->length; i++) {
+        action(arr->items[i]);
+    }
+}
 
+void array_remove(array *arr, Comparator cmp) {
+    if (!arr || !cmp) return;
+    
+    size_t write_index = 0;
+    for (size_t read_index = 0; read_index < arr->length; read_index++) {
+        // If the item doesn't match the removal criteria, keep it
+        if (!cmp(arr->items[read_index])) {
+            // Only copy if the positions differ
+            if (write_index != read_index) {
+                arr->items[write_index] = arr->items[read_index];
+            }
+            write_index++;
+        }
+    }
+    
+    // Update array length to the new size after removal
+    arr->length = write_index;
+}
 
 void __array_resize(array *arr, size_t capacity) {
     if (!arr || capacity < arr->length) return;
