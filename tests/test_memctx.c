@@ -2,21 +2,21 @@
 #include <assert.h>
 #include <string.h>
 
-void test_basic_allocation();
-void test_zero_size_allocation();
-void test_null_context_allocation();
-void test_memctx_snprintf();
-void test_memctx_snprintf_null_context();
-void test_memctx_snprintf_null_format();
-void test_memctx_open_file();
-void test_memctx_open_nonexistent_file();
-void test_memctx_free_file_null();
-void test_memctx_free_null_context();
-void test_memctx_blocks_count();
-void test_memctx_block_at_invalid_index();
-void test_large_allocation();
-void test_allocation_alignment();
-void test_memctx_description_null();
+void test_basic_allocation(void);
+void test_zero_size_allocation(void);
+void test_null_context_allocation(void);
+void test_memctx_snprintf(void);
+void test_memctx_snprintf_null_context(void);
+void test_memctx_snprintf_null_format(void);
+void test_memctx_open_file(void);
+void test_memctx_open_nonexistent_file(void);
+void test_memctx_free_file_null(void);
+void test_memctx_free_null_context(void);
+void test_memctx_blocks_count(void);
+void test_memctx_block_at_invalid_index(void);
+void test_large_allocation(void);
+void test_allocation_alignment(void);
+void test_memctx_description_null(void);
 
 int main(void) {
     test_basic_allocation();
@@ -40,7 +40,7 @@ int main(void) {
 }
 
 // Test 1: Basic allocation and retrieval
-void test_basic_allocation() {
+void test_basic_allocation(void) {
     MemContext *ctx = memctx();
     assert(ctx != NULL);
 
@@ -53,7 +53,7 @@ void test_basic_allocation() {
 }
 
 // Test 2: Allocate zero bytes (should return NULL)
-void test_zero_size_allocation() {
+void test_zero_size_allocation(void) {
     MemContext *ctx = memctx();
     assert(ctx != NULL);
 
@@ -64,13 +64,13 @@ void test_zero_size_allocation() {
 }
 
 // Test 3: Allocate with NULL context (should return NULL)
-void test_null_context_allocation() {
+void test_null_context_allocation(void) {
     void *ptr = memctx_alloc(NULL, 100);
     assert(ptr == NULL);
 }
 
 // Test 4: memctx_snprintf with valid inputs
-void test_memctx_snprintf() {
+void test_memctx_snprintf(void) {
     MemContext *ctx = memctx();
     assert(ctx != NULL);
 
@@ -84,7 +84,7 @@ void test_memctx_snprintf() {
 }
 
 // Test 5: memctx_snprintf with NULL memctx (should return 0)
-void test_memctx_snprintf_null_context() {
+void test_memctx_snprintf_null_context(void) {
     char *buffer;
     size_t len = memctx_snprintf(NULL, &buffer, "Test");
     assert(len == 0);
@@ -92,7 +92,7 @@ void test_memctx_snprintf_null_context() {
 }
 
 // Test 6: memctx_snprintf with NULL format (should return 0)
-void test_memctx_snprintf_null_format() {
+void test_memctx_snprintf_null_format(void) {
     MemContext *ctx = memctx();
     assert(ctx != NULL);
 
@@ -105,7 +105,7 @@ void test_memctx_snprintf_null_format() {
 }
 
 // Test 7: memctx_open_file with valid file
-void test_memctx_open_file() {
+void test_memctx_open_file(void) {
     MemContext *ctx = memctx();
     assert(ctx != NULL);
 
@@ -121,7 +121,7 @@ void test_memctx_open_file() {
 }
 
 // Test 8: memctx_open_file with nonexistent file (should return 0)
-void test_memctx_open_nonexistent_file() {
+void test_memctx_open_nonexistent_file(void) {
     MemContext *ctx = memctx();
     assert(ctx != NULL);
 
@@ -134,7 +134,7 @@ void test_memctx_open_nonexistent_file() {
 }
 
 // Test 9: memctx_free_file with NULL context or file
-void test_memctx_free_file_null() {
+void test_memctx_free_file_null(void) {
     memctx_free_file(NULL, NULL); // Should not crash
     MemContext *ctx = memctx();
     assert(ctx != NULL);
@@ -150,12 +150,12 @@ void test_memctx_free_file_null() {
 }
 
 // Test 10: memctx_free with NULL context (should not crash)
-void test_memctx_free_null_context() {
+void test_memctx_free_null_context(void) {
     memctx_free(NULL); // Should not crash
 }
 
 // Test 11: __memctx_blocks_count basic test
-void test_memctx_blocks_count() {
+void test_memctx_blocks_count(void) {
     MemContext *ctx = memctx();
     assert(ctx != NULL);
 
@@ -171,7 +171,7 @@ void test_memctx_blocks_count() {
 }
 
 // Test 12: __memctx_block_at with invalid index
-void test_memctx_block_at_invalid_index() {
+void test_memctx_block_at_invalid_index(void) {
     MemContext *ctx = memctx();
     assert(ctx != NULL);
 
@@ -185,7 +185,7 @@ void test_memctx_block_at_invalid_index() {
 }
 
 // Test 13: Large allocation (larger than MEMCTX_PAGE_SIZE)
-void test_large_allocation() {
+void test_large_allocation(void) {
     MemContext *ctx = memctx();
     assert(ctx != NULL);
 
@@ -200,7 +200,7 @@ void test_large_allocation() {
 }
 
 // Test 14: Allocation alignment
-void test_allocation_alignment() {
+void test_allocation_alignment(void) {
     MemContext *ctx = memctx();
     assert(ctx != NULL);
 
@@ -216,7 +216,7 @@ void test_allocation_alignment() {
 }
 
 // Test 15: memctx_description with NULL context (should return NULL)
-void test_memctx_description_null() {
+void test_memctx_description_null(void) {
     char *desc = memctx_description(NULL);
     assert(desc == NULL);
 }
