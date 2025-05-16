@@ -161,7 +161,7 @@ string content = string_read_file(ctx, "example.txt");
 string_free_file(content); // Frees the file block from the context
 ```
 
-Calling this function after `string_read_file` is not necessary (memory will be freed when the memory context is deallocated anyway), 
+Calling this function after `string_read_file` is not necessary (memory will be freed when the memory context is deallocated anyway),
 but may reduce memory footprint for long-living contexts.
 
 #### `substring string_trim(string str)`
@@ -174,8 +174,6 @@ string str = string_make("  Hello, World!  ");
 substring trimmed = string_trim(str);
 // trimmed now references "Hello, World!" within str
 ```
-
-Note: there's no need to call a special free function. The memory will be automatically freed when the memory context is freed with `memctx_free()`.
 
 ---
 
