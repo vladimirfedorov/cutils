@@ -176,3 +176,138 @@ substring trimmed = string_trim(str);
 ```
 
 Note: there's no need to call a special free function. The memory will be automatically freed when the memory context is freed with `memctx_free()`.
+
+---
+
+## memctx_arrays - array utilities
+
+**memctx_arrays** provides dynamic array handling functions that use memory context (see `memctx.h`) for memory management.
+Arrays allocate memory in blocks of 4 items initially;
+the size can be customized by redefining `ARRAY_INIT_CAPACITY` before including the header.
+
+### Array Types
+
+- `array`: dynamic array structure that stores pointers to arbitrary objects.
+- `Comparator`: function type for finding and filtering items in an array.
+- `Action`: function type for operating on array items.
+
+### Array Functions
+
+#### `array* array_init(MemContext *ctx)`
+
+Initializes a new empty array in the provided memory context.
+
+```c
+// Initializes an empty array
+MemContext *ctx = memctx();
+array *arr = array_init(ctx);
+```
+
+#### `void array_clear(array *arr)`
+
+Clears all elements from an array. The array structure and its capacity are preserved.
+
+```c
+// Clear all items from an array
+array_clear(arr);
+// arr->length is now 0, but capacity is unchanged
+```
+
+#### `size_t array_append(array *arr, void *item)`
+
+Appends an item to the end of the array. Automatically resizes the array if necessary.
+
+```c
+// Append items to the array
+int *value = memctx_alloc(ctx, sizeof(int));
+*value = 42;
+size_t len = array_append(arr, value);
+// len is now 1
+
+char *str = memctx_alloc(ctx, 10);
+strcpy(str, "Hello");
+len = array_append(arr, str);
+// len is now 2
+```
+
+#### `void array_insert_at(array *arr, void *item, size_t index)`
+
+Inserts an item at the specified index in the array. If the index is out of bounds, the item is appended.
+
+```c
+// Insert an item at index 1
+float *pi = memctx_alloc(ctx, sizeof(float));
+*pi = 3.14f;
+array_insert_at(arr, pi, 1);
+// Order is now: [value, pi, str]
+```
+
+#### `void array_remove_at(array *arr, size_t index)`
+
+Removes the item at the specified index from the array.
+
+```c
+// Remove the item at index 1
+array_remove_at(arr, 1);
+// Order is now: [value, str]
+```
+
+#### `void* array_item_at(array *arr, size_t index)`
+
+Retrieves the item at the specified index in the array.
+
+```c
+// Get the item at index 0
+int *retrieved = array_item_at(arr, 0);
+printf("Value: %d\n", *retrieved); // Prints "Value: 42"
+```
+
+#### `size_t array_first_index(array *arr, Comparator cmp)`
+
+Finds the first item in the array that satisfies the given comparator function.
+
+```c
+// Define a comparator function that matches a specific value
+bool find_42(void *item) {
+    return *(int*)item == 42;
+}
+
+// Find the index of the first item that equals 42
+size_t index = array_first_index(arr, find_42);
+// If found, index will be the position; if not found, index will be (size_t)-1
+```
+
+#### `void array_match(array *arr, Comparator cmp, Action action)`
+
+Applies an action function to all items that match a comparator function.
+
+```c
+// Define an action function that doubles the value
+void double_value(void *item) {
+    *(int*)item *= 2;
+}
+
+// Double all values that equal 42
+array_match(arr, find_42, double_value);
+```
+
+#### `void array_foreach(array *arr, Action action)`
+
+Applies an action function to every item in the array.
+
+```c
+// Apply an action to all items in the array
+array_foreach(arr, double_value);
+// All integer values in the array are now doubled
+```
+
+#### `void array_remove(array *arr, Comparator cmp)`
+
+Removes all items from the array that satisfy the given comparator function.
+
+```c
+// Remove all items that equal 84 (after doubling 42)
+array_remove(arr, find_84);
+```
+
+Note: there's no need to call a special free function. The memory for the array and its items will be automatically freed when the memory context is freed with `memctx_free()`.
