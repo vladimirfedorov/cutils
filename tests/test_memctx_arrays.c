@@ -28,6 +28,13 @@ void test_array_match_null_array(void);
 void test_array_match_null_comparator(void);
 void test_array_match_null_action(void);
 void test_array_match_no_matches(void);
+void test_array_foreach(void);
+void test_array_foreach_null_array(void);
+void test_array_foreach_null_action(void);
+void test_array_remove(void);
+void test_array_remove_null_array(void);
+void test_array_remove_null_comparator(void);
+void test_array_remove_no_matches(void);
 
 // Comparator functions for array_first_index tests
 bool find_30(void *item);
@@ -35,8 +42,9 @@ bool find_20(void *item);
 bool find_50(void *item);
 bool always_true(void *item);
 
-// Action functions for array_match tests
+// Action functions for array_match and array_foreach tests
 void increment_int(void *item);
+void double_int(void *item);
 
 int main(void) {
     test_array_init();
@@ -64,6 +72,13 @@ int main(void) {
     test_array_match_null_comparator();
     test_array_match_null_action();
     test_array_match_no_matches();
+    test_array_foreach();
+    test_array_foreach_null_array();
+    test_array_foreach_null_action();
+    test_array_remove();
+    test_array_remove_null_array();
+    test_array_remove_null_comparator();
+    test_array_remove_no_matches();
 
     printf("All array tests completed successfully.\n");
     return 0;
@@ -691,6 +706,178 @@ void test_array_match_no_matches(void) {
     // Verify no items were modified
     assert(*item1 == 10);
     assert(*item2 == 20);
+
+    memctx_free(ctx);
+}
+
+void double_int(void *item) {
+    (*(int*)item) *= 2;
+}
+
+// Test 26: Test array_foreach functionality
+void test_array_foreach(void) {
+    MemContext *ctx = memctx();
+    assert(ctx != NULL);
+
+    array *arr = array_init(ctx);
+    assert(arr != NULL);
+
+    // Create some test items
+    int *item1 = (int*)memctx_alloc(ctx, sizeof(int));
+    *item1 = 10;
+
+    int *item2 = (int*)memctx_alloc(ctx, sizeof(int));
+    *item2 = 20;
+
+    int *item3 = (int*)memctx_alloc(ctx, sizeof(int));
+    *item3 = 30;
+
+    // Append the items
+    array_append(arr, item1);
+    array_append(arr, item2);
+    array_append(arr, item3);
+
+    // Apply double_int to all items in the array
+    array_foreach(arr, double_int);
+
+    // Verify that all items were doubled
+    assert(*item1 == 20);  // 10 * 2
+    assert(*item2 == 40);  // 20 * 2
+    assert(*item3 == 60);  // 30 * 2
+
+    memctx_free(ctx);
+}
+
+// Test 27: Test array_foreach with NULL array
+void test_array_foreach_null_array(void) {
+    // Should not crash
+    array_foreach(NULL, double_int);
+}
+
+// Test 28: Test array_foreach with NULL action
+void test_array_foreach_null_action(void) {
+    MemContext *ctx = memctx();
+    assert(ctx != NULL);
+
+    array *arr = array_init(ctx);
+    assert(arr != NULL);
+
+    // Add an item to the array
+    int *item = (int*)memctx_alloc(ctx, sizeof(int));
+    *item = 10;
+    array_append(arr, item);
+
+    // Call with NULL action
+    array_foreach(arr, NULL);
+
+    // Verify item was not modified
+    assert(*item == 10);
+
+    memctx_free(ctx);
+}
+
+// Test 29: Test array_remove functionality
+void test_array_remove(void) {
+    MemContext *ctx = memctx();
+    assert(ctx != NULL);
+
+    array *arr = array_init(ctx);
+    assert(arr != NULL);
+
+    // Create some test items
+    int *item1 = (int*)memctx_alloc(ctx, sizeof(int));
+    *item1 = 10;
+
+    int *item2 = (int*)memctx_alloc(ctx, sizeof(int));
+    *item2 = 20;
+
+    int *item3 = (int*)memctx_alloc(ctx, sizeof(int));
+    *item3 = 30;
+
+    int *item4 = (int*)memctx_alloc(ctx, sizeof(int));
+    *item4 = 20;  // Another item with value 20
+
+    // Append the items
+    array_append(arr, item1);
+    array_append(arr, item2);
+    array_append(arr, item3);
+    array_append(arr, item4);
+
+    // Remove all items with value 20
+    array_remove(arr, find_20);
+
+    // Verify the array length and content
+    assert(arr->length == 2);
+    assert(arr->items[0] == item1);
+    assert(arr->items[1] == item3);
+
+    // Verify the values of remaining items
+    assert(*((int*)arr->items[0]) == 10);
+    assert(*((int*)arr->items[1]) == 30);
+
+    memctx_free(ctx);
+}
+
+// Test 30: Test array_remove with NULL array
+void test_array_remove_null_array(void) {
+    // Should not crash
+    array_remove(NULL, find_20);
+}
+
+// Test 31: Test array_remove with NULL comparator
+void test_array_remove_null_comparator(void) {
+    MemContext *ctx = memctx();
+    assert(ctx != NULL);
+
+    array *arr = array_init(ctx);
+    assert(arr != NULL);
+
+    // Add items to the array
+    int *item1 = (int*)memctx_alloc(ctx, sizeof(int));
+    *item1 = 10;
+    int *item2 = (int*)memctx_alloc(ctx, sizeof(int));
+    *item2 = 20;
+
+    array_append(arr, item1);
+    array_append(arr, item2);
+
+    // Call with NULL comparator
+    array_remove(arr, NULL);
+
+    // Verify items were not removed
+    assert(arr->length == 2);
+    assert(*((int*)arr->items[0]) == 10);
+    assert(*((int*)arr->items[1]) == 20);
+
+    memctx_free(ctx);
+}
+
+// Test 32: Test array_remove with no matches
+void test_array_remove_no_matches(void) {
+    MemContext *ctx = memctx();
+    assert(ctx != NULL);
+
+    array *arr = array_init(ctx);
+    assert(arr != NULL);
+
+    // Create some test items
+    int *item1 = (int*)memctx_alloc(ctx, sizeof(int));
+    *item1 = 10;
+
+    int *item2 = (int*)memctx_alloc(ctx, sizeof(int));
+    *item2 = 40;  // No 20s
+
+    // Append the items
+    array_append(arr, item1);
+    array_append(arr, item2);
+
+    // Remove with find_20, which won't match any items
+    array_remove(arr, find_20);
+
+    // Verify no items were removed
+    assert(arr->length == 2);
+    assert(*((int*)arr->items[0]) == 10);
+    assert(*((int*)arr->items[1]) == 40);
 
     memctx_free(ctx);
 }
