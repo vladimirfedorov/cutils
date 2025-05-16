@@ -23,12 +23,20 @@ void test_array_first_index(void);
 void test_array_first_index_null_array(void);
 void test_array_first_index_null_comparator(void);
 void test_array_first_index_no_match(void);
+void test_array_match(void);
+void test_array_match_null_array(void);
+void test_array_match_null_comparator(void);
+void test_array_match_null_action(void);
+void test_array_match_no_matches(void);
 
 // Comparator functions for array_first_index tests
 bool find_30(void *item);
 bool find_20(void *item);
 bool find_50(void *item);
 bool always_true(void *item);
+
+// Action functions for array_match tests
+void increment_int(void *item);
 
 int main(void) {
     test_array_init();
@@ -51,6 +59,11 @@ int main(void) {
     test_array_first_index_null_array();
     test_array_first_index_null_comparator();
     test_array_first_index_no_match();
+    test_array_match();
+    test_array_match_null_array();
+    test_array_match_null_comparator();
+    test_array_match_null_action();
+    test_array_match_no_matches();
 
     printf("All array tests completed successfully.\n");
     return 0;
@@ -558,6 +571,126 @@ void test_array_first_index_no_match(void) {
     // Try to find an item that doesn't exist
     size_t index = array_first_index(arr, find_50);
     assert(index == (size_t)-1);
+
+    memctx_free(ctx);
+}
+
+// Action function implementations
+void increment_int(void *item) {
+    (*(int*)item)++;
+}
+
+// Test 21: Test array_match functionality
+void test_array_match(void) {
+    MemContext *ctx = memctx();
+    assert(ctx != NULL);
+
+    array *arr = array_init(ctx);
+    assert(arr != NULL);
+
+    // Create some test items
+    int *item1 = (int*)memctx_alloc(ctx, sizeof(int));
+    *item1 = 10;
+
+    int *item2 = (int*)memctx_alloc(ctx, sizeof(int));
+    *item2 = 20;
+
+    int *item3 = (int*)memctx_alloc(ctx, sizeof(int));
+    *item3 = 30;
+
+    int *item4 = (int*)memctx_alloc(ctx, sizeof(int));
+    *item4 = 20;  // Another item with value 20
+
+    // Append the items
+    array_append(arr, item1);
+    array_append(arr, item2);
+    array_append(arr, item3);
+    array_append(arr, item4);
+
+    // Apply increment_int to all items with value 20
+    array_match(arr, find_20, increment_int);
+
+    // Verify that only items with value 20 were incremented
+    assert(*item1 == 10);  // Unchanged
+    assert(*item2 == 21);  // Incremented
+    assert(*item3 == 30);  // Unchanged
+    assert(*item4 == 21);  // Incremented
+
+    memctx_free(ctx);
+}
+
+// Test 22: Test array_match with NULL array
+void test_array_match_null_array(void) {
+    // Should not crash
+    array_match(NULL, find_20, increment_int);
+}
+
+// Test 23: Test array_match with NULL comparator
+void test_array_match_null_comparator(void) {
+    MemContext *ctx = memctx();
+    assert(ctx != NULL);
+
+    array *arr = array_init(ctx);
+    assert(arr != NULL);
+
+    // Add an item to the array
+    int *item = (int*)memctx_alloc(ctx, sizeof(int));
+    *item = 10;
+    array_append(arr, item);
+
+    // Call with NULL comparator
+    array_match(arr, NULL, increment_int);
+
+    // Verify item was not modified
+    assert(*item == 10);
+
+    memctx_free(ctx);
+}
+
+// Test 24: Test array_match with NULL action
+void test_array_match_null_action(void) {
+    MemContext *ctx = memctx();
+    assert(ctx != NULL);
+
+    array *arr = array_init(ctx);
+    assert(arr != NULL);
+
+    // Add an item to the array
+    int *item = (int*)memctx_alloc(ctx, sizeof(int));
+    *item = 10;
+    array_append(arr, item);
+
+    // Call with NULL action - should not crash
+    array_match(arr, always_true, NULL);
+
+    memctx_free(ctx);
+}
+
+// Test 25: Test array_match with no matches
+void test_array_match_no_matches(void) {
+    MemContext *ctx = memctx();
+    assert(ctx != NULL);
+
+    array *arr = array_init(ctx);
+    assert(arr != NULL);
+
+    // Create test items
+    int *item1 = (int*)memctx_alloc(ctx, sizeof(int));
+    *item1 = 10;
+
+    int *item2 = (int*)memctx_alloc(ctx, sizeof(int));
+    *item2 = 20;
+
+    // Append the items
+    array_append(arr, item1);
+    array_append(arr, item2);
+
+    // Try to match items with value 30 (none exist)
+    array_match(arr, find_30, increment_int);
+
+    // Verify no items were modified
+    assert(*item1 == 10);
+    assert(*item2 == 20);
 
     memctx_free(ctx);
 }

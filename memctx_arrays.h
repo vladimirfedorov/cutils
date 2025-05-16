@@ -115,6 +115,18 @@ void* array_item_at(array *arr, size_t index);
  */
 size_t array_first_index(array *arr, Comparator cmp);
 
+/**
+ * Applies the action function to each item in the array that satisfies the given comparator function.
+ *
+ * @param arr Pointer to the array to search
+ * @param cmp The comparator function that returns true when a matching item is found
+ * @param action The action function to apply to each matching item
+ * @return Nothing, but if:
+ *         - arr is NULL
+ *         - cmp is NULL
+ *         - action is NULL (undefined behavior)
+ *         then no action is taken
+ */
 void array_match(array *arr, Comparator cmp, Action action);
 void array_foreach(array *arr, Action action);
 void array_remove(array *arr, Comparator cmp);
@@ -228,6 +240,17 @@ size_t array_first_index(array *arr, Comparator cmp) {
     // No match found
     return (size_t)-1;
 }
+
+void array_match(array *arr, Comparator cmp, Action action) {
+    if (!arr || !cmp || !action) return;
+    for (size_t i = 0; i < arr->length; i++) {
+        if (cmp(arr->items[i])) {
+            action(arr->items[i]);
+        }
+    }
+}
+
+
 
 void __array_resize(array *arr, size_t capacity) {
     if (!arr || capacity < arr->length) return;
