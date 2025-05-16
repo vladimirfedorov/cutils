@@ -43,7 +43,7 @@ typedef bool (*Comparator)(void *item);
 typedef void (*Action)(void *item);
 
 /**
- * Initialize a new array with the specified memory context.
+ * Initialize a new array within the specified memory context.
  *
  * @param ctx Pointer to the memory context to use for allocations
  * @return Pointer to the newly created array, or NULL if allocation fails
@@ -61,7 +61,8 @@ void array_clear(array *arr);
 
 /**
  * Appends an item to the end of the array.
- * Automatically resizes the array if necessary.
+ *
+ * Automatically grows array capacity the array if necessary.
  *
  * @param arr Pointer to the array
  * @param item The item to append
@@ -108,7 +109,7 @@ void* array_item_at(array *arr, size_t index);
  *
  * @param arr Pointer to the array to search
  * @param cmp The comparator function that returns true when a matching item is found
- * @return The index of the first matching item, or (size_t)-1 if:
+ * @return The index of the first matching item, or -1 if:
  *         - arr is NULL
  *         - cmp is NULL
  *         - no matching item is found
@@ -166,19 +167,13 @@ void __array_resize(array *arr, size_t capacity);
 array* array_init(MemContext *ctx) {
     if (!ctx) return NULL;
 
-    // Allocate the array structure itself from the memory context
     array *arr = (array*)memctx_alloc(ctx, sizeof(array));
     if (!arr) return NULL;
-
-    // Initialize with default values
     arr->length = 0;
     arr->capacity = ARRAY_INIT_CAPACITY;
     arr->ctx = ctx;
-
-    // Allocate memory for the items array
     arr->items = (void**)memctx_alloc(ctx, sizeof(void*) * ARRAY_INIT_CAPACITY);
     if (!arr->items) {
-        // No need to explicitly free arr as it's part of the memory context
         return NULL;
     }
 
@@ -198,13 +193,11 @@ size_t array_append(array *arr, void *item) {
         // Double the capacity when resizing
         __array_resize(arr, arr->capacity * 2);
 
-        // Check if the resize was successful
         if (arr->length >= arr->capacity) {
             return arr->length; // Resize failed, return current length
         }
     }
 
-    // Add the item to the end of the array and increment the length
     arr->items[arr->length] = item;
     arr->length++;
 
@@ -214,7 +207,6 @@ size_t array_append(array *arr, void *item) {
 void array_insert_at(array *arr, void *item, size_t index) {
     if (!arr) return;
 
-    // If index is beyond the end of the array, treat it as append
     if (index >= arr->length) {
         array_append(arr, item);
         return;
@@ -249,18 +241,15 @@ void* array_item_at(array *arr, size_t index) {
 }
 
 size_t array_first_index(array *arr, Comparator cmp) {
-    if (!arr || !cmp) return (size_t)-1;
+    if (!arr || !cmp) return -1;
 
-    // Iterate through the array and apply the comparator function to each item
     for (size_t i = 0; i < arr->length; i++) {
-        // If the comparator returns true, we found a match
         if (cmp(arr->items[i])) {
             return i;
         }
     }
 
-    // No match found
-    return (size_t)-1;
+    return -1;
 }
 
 void array_match(array *arr, Comparator cmp, Action action) {
@@ -281,7 +270,7 @@ void array_foreach(array *arr, Action action) {
 
 void array_remove(array *arr, Comparator cmp) {
     if (!arr || !cmp) return;
-    
+
     size_t write_index = 0;
     for (size_t read_index = 0; read_index < arr->length; read_index++) {
         // If the item doesn't match the removal criteria, keep it
@@ -293,8 +282,7 @@ void array_remove(array *arr, Comparator cmp) {
             write_index++;
         }
     }
-    
-    // Update array length to the new size after removal
+
     arr->length = write_index;
 }
 
